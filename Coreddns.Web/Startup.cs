@@ -1,5 +1,6 @@
 ﻿using Coreddns.Core.Entities.DdnsDb;
 using Coreddns.Core.Model;
+using Coreddns.Core.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
@@ -60,6 +61,8 @@ namespace Coreddns.Web
             //services.AddIdentity<ApplicationUser, IdentityRole>()
             //    .AddEntityFrameworkStores<DdnsDbContext>()
             //    .AddDefaultTokenProviders();
+
+            services.AddScoped<IEtcdRepostitory, EtcdRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

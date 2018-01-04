@@ -1,38 +1,28 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
+using System.Net;
 using System.Threading.Tasks;
 using Coreddns.Core.Entities.DdnsDb;
-using Coreddns.Core.Model;
+using Coreddns.Core.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 
 namespace Coreddns.Web.Controllers
 {
     public class RenewController : Controller
     {
-        private readonly IConfiguration _configuration;
-        private readonly IOptions<CoreDdnsOptions> _options;
         private readonly DdnsDbContext _context;
-        private readonly ILogger _logger;
+        private readonly IEtcdRepostitory _etcdRepo;
 
-        public RenewController(IConfiguration configuration
-        , IOptions<CoreDdnsOptions> options
-        , DdnsDbContext context
-        , ILogger<RenewController> logger)
+        public RenewController(
+        DdnsDbContext context
+        , IEtcdRepostitory etcdRepo)
         {
-            _configuration = configuration;
-            _options = options;
             _context = context;
-            _logger = logger;
+            _etcdRepo = etcdRepo;
         }
 
         private const string okStr = "OK";
-
-        // private readonly static Regex ReQuestion = new Regex(@"ˆ\?", RegexOptions.Compiled | RegexOptions.Singleline);
 
         [HttpGet("api/renew")]
         public async Task<string> DdnsRenew()
@@ -42,60 +32,26 @@ namespace Coreddns.Web.Controllers
             ? q.Substring(1)
             : q;
 
-            var row = _context.ddnshost.FirstOrDefault(x => x.hash == hostkey && x.isvalid);
+            var row = await _context.ddnshost.SingleOrDefaultAsync(x => x.hash == hostkey && x.isvalid);
             if (row == null) return okStr;
 
-            System.Net.IPAddress ip;
-            var realipstr = Request.Headers["X-Real-IP"].FirstOrDefault();
-            if (!System.Net.IPAddress.TryParse(realipstr, out ip))
-            {
-                ip = Request.HttpContext.Connection.RemoteIpAddress;
-            }
-
+            var ip = GetRealIp();
             var changed = await RegisterDdnsToDb(ip, row);
             if (changed)
             {
-                await SendNewaddrToEtcd(row);
+                await _etcdRepo.SendNewaddrToEtcd(row);
             }
             return okStr;
         }
 
-        public class EtcdRequest
+        private IPAddress GetRealIp()
         {
-            public string host { get; set; }
-        }
-
-        private async Task SendNewaddrToEtcd(ddnshost row)
-        {
-            string url = _options.Value.BaseEtcdUrl + row.name.ToLower();
-            var client = new HttpClient();
-
-            // IPv4 登録しない
-            // await SendNewaddrToEtcdSub(url + "/v4", row.ipv4, client);
-            await SendNewaddrToEtcdSub(url + "/v6", row.ipv6, client);
-        }
-
-        private async Task SendNewaddrToEtcdSub(string urlWithSubkey, string ipaddr, HttpClient client)
-        {
-            if (ipaddr != null)
+            IPAddress ip;
+            if (IPAddress.TryParse(Request.Headers["X-Real-IP"].FirstOrDefault() ?? "", out ip))
             {
-                var contentStr = Newtonsoft.Json.JsonConvert.SerializeObject(new EtcdRequest
-                {
-                    host = ipaddr,
-                });
-                _logger.LogInformation("PUT " + urlWithSubkey + " value=" + contentStr);
-                var content = new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("value", contentStr) });
-                var response = await client.PutAsync(urlWithSubkey, content);
-                var responseStr = await response.Content.ReadAsStringAsync();
-                _logger.LogInformation(responseStr);
+                return ip;
             }
-            else
-            {
-                _logger.LogInformation("DELETE " + urlWithSubkey);
-                var response = await client.DeleteAsync(urlWithSubkey);
-                var responseStr = await response.Content.ReadAsStringAsync();
-                _logger.LogInformation(responseStr);
-            }
+            return Request.HttpContext.Connection.RemoteIpAddress;
         }
 
         // 値の変更があったら true を返す
@@ -125,9 +81,8 @@ namespace Coreddns.Web.Controllers
                     addrfamily = (int)ip.AddressFamily,
                     createtime = now,
                 });
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
 
             return true;
         }

@@ -3,7 +3,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Coreddns.Core.Entities.DdnsDb
 {
-    public class ddnshost
+    public interface Iddnshost
+    {
+        string name { get; set; }
+        string ipv4 { get; set; }
+        string ipv6 { get; set; }
+    }
+
+    public class ddnshost : Iddnshost
     {
         [Key]
         public long id { get; set; }
