@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Coreddns.Tests/Coreddns.Tests.csproj"
+                "${workspaceFolder}/Coreddns.Web/Coreddns.Web.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
