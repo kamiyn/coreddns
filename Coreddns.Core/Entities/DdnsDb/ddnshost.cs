@@ -10,7 +10,7 @@ namespace Coreddns.Core.Entities.DdnsDb
         string ipv6 { get; set; }
     }
 
-    public class ddnshost : Iddnshost
+    public class ddnshost
     {
         [Key]
         public long id { get; set; }
@@ -28,18 +28,6 @@ namespace Coreddns.Core.Entities.DdnsDb
         public string hash { get; set; }
 
         /// <summary>
-        /// IPv4 アドレス
-        /// </summary>
-        [MaxLength(16)]
-        public string ipv4 { get; set; }
-
-        /// <summary>
-        /// IPv6 アドレス
-        /// </summary>
-        [MaxLength(40)]
-        public string ipv6 { get; set; }
-
-        /// <summary>
         /// レコードが有効かどうか
         /// </summary>
         public bool isvalid { get; set; }
@@ -54,15 +42,5 @@ namespace Coreddns.Core.Entities.DdnsDb
         /// 初期生成日時
         /// </summary>
         public DateTimeOffset createtime { get; set; }
-
-        /// <summary>
-        /// 更新日時
-        /// </summary>
-        public DateTimeOffset updatetimev4 { get; set; }
-
-        /// <summary>
-        /// 更新日時
-        /// </summary>
-        public DateTimeOffset updatetimev6 { get; set; }
     }
 }

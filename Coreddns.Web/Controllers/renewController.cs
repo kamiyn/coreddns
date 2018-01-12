@@ -24,6 +24,27 @@ namespace Coreddns.Web.Controllers
 
         private const string okStr = "OK";
 
+        public class ddnshostParam : Iddnshost
+        {
+            public string name { get; set; }
+            public string ipv4 { get; set; }
+            public string ipv6 { get; set; }
+
+            public ddnshostParam(string name, IPAddress ip)
+            {
+                this.name = name;
+                switch (ip.AddressFamily)
+                {
+                    case System.Net.Sockets.AddressFamily.InterNetwork:
+                        ipv4 = ip.ToString();
+                        break;
+                    case System.Net.Sockets.AddressFamily.InterNetworkV6:
+                        ipv6 = ip.ToString();
+                        break;
+                }
+            }
+        }
+
         [HttpGet("api/renew")]
         public async Task<string> DdnsRenew()
         {
@@ -36,11 +57,8 @@ namespace Coreddns.Web.Controllers
             if (row == null) return okStr;
 
             var ip = GetRealIp();
-            var changed = await RegisterDdnsToDb(ip, row);
-            if (changed)
-            {
-                await _etcdRepo.SendNewaddrToEtcd(row);
-            }
+            await _etcdRepo.SendNewaddrToEtcd(new ddnshostParam(row.name, ip));
+            await WriteLog(row.name, ip);
             return okStr;
         }
 
@@ -55,28 +73,14 @@ namespace Coreddns.Web.Controllers
         }
 
         // 値の変更があったら true を返す
-        private async Task<bool> RegisterDdnsToDb(System.Net.IPAddress ip, ddnshost row)
+        private async Task<bool> WriteLog(string name, System.Net.IPAddress ip)
         {
             var now = DateTimeOffset.Now;
             string ipstr = ip.ToString();
-            switch (ip.AddressFamily)
-            {
-                case System.Net.Sockets.AddressFamily.InterNetwork:
-                    if (row.ipv4 == ipstr) return false;
-                    row.ipv4 = ipstr;
-                    row.updatetimev4 = now;
-                    break;
-                case System.Net.Sockets.AddressFamily.InterNetworkV6:
-                    if (row.ipv6 == ipstr) return false;
-                    row.ipv6 = ipstr;
-                    row.updatetimev6 = now;
-                    break;
-            }
-
             {
                 _context.ddnschangelog.Add(new ddnschangelog
                 {
-                    name = row.name,
+                    name = name,
                     ip = ipstr,
                     addrfamily = (int)ip.AddressFamily,
                     createtime = now,

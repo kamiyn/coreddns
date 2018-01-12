@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Coreddns.Core.Entities.DdnsDb;
 using Coreddns.Core.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace Coreddns.Core.Repositories
 {
@@ -23,6 +25,23 @@ namespace Coreddns.Core.Repositories
         public class EtcdRequest
         {
             public string host { get; set; }
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public long? updatedAt { get; set; }
+        }
+
+        public class EtcdNode
+        {
+            public string key { get; set; }
+            public string value { get; set; }
+        }
+
+        public class EtcdGetResponse
+        {
+            public string action { get; set; }
+            public EtcdNode node { get; set; }
+            // public long modifiedIndex { get; set; }
+            // public long createdIndex { get; set; }
         }
 
         public async Task SendNewaddrToEtcd(Iddnshost row)
@@ -37,11 +56,21 @@ namespace Coreddns.Core.Repositories
 
         private async Task SendNewaddrToEtcdSub(string urlWithSubkey, string ipaddr, HttpClient client)
         {
+            var now = GetUnixTime();
+            var oldEntry = await GetOldEntry(urlWithSubkey, client);
+
+            if (ipaddr != null && oldEntry != null && oldEntry.host == ipaddr && oldEntry.updatedAt > now - 86400)
+            {
+                _logger.LogInformation("NOT UPDATE " + urlWithSubkey);
+                return; // 値の変更がなく、かつ1日以内のレコードであれば更新をしない
+            }
+
             if (ipaddr != null)
             {
                 var contentStr = Newtonsoft.Json.JsonConvert.SerializeObject(new EtcdRequest
                 {
                     host = ipaddr,
+                    updatedAt = now,
                 });
                 _logger.LogInformation("PUT " + urlWithSubkey + " value=" + contentStr);
                 var content = new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("value", contentStr) });
@@ -56,6 +85,33 @@ namespace Coreddns.Core.Repositories
                 var responseStr = await response.Content.ReadAsStringAsync();
                 _logger.LogInformation(responseStr);
             }
+        }
+
+        private async Task<EtcdRequest> GetOldEntry(string urlWithSubkey, HttpClient client)
+        {
+            try
+            {
+                var response = await client.GetAsync(urlWithSubkey);
+                var responseStr = await response.Content.ReadAsStringAsync();
+                var obj = Newtonsoft.Json.JsonConvert.DeserializeObject<EtcdGetResponse>(responseStr);
+                if (obj != null && obj.node != null)
+                {
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<EtcdRequest>(obj.node.value);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                return null;
+            }
+        }
+
+        private static readonly DateTimeOffset epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+        private static int GetUnixTime()
+        {
+            return (int)(DateTimeOffset.Now - epoch).TotalSeconds;
         }
     }
 }
