@@ -58,7 +58,7 @@ namespace Coreddns.Web.Controllers
 
             var ip = GetRealIp();
             await _etcdRepo.SendNewaddrToEtcd(new ddnshostParam(row.name, ip));
-            await WriteLog(row.name, ip);
+            // await WriteLog(row.name, ip);
             return okStr;
         }
 
@@ -75,6 +75,7 @@ namespace Coreddns.Web.Controllers
         // 値の変更があったら true を返す
         private async Task<bool> WriteLog(string name, System.Net.IPAddress ip)
         {
+#if false
             var now = DateTimeOffset.Now;
             string ipstr = ip.ToString();
             {
@@ -87,7 +88,8 @@ namespace Coreddns.Web.Controllers
                 });
                 await _context.SaveChangesAsync();
             }
-
+#endif
+            await Task.Run(() => {});
             return true;
         }
     }

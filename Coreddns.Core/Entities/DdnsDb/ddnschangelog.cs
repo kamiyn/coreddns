@@ -1,3 +1,4 @@
+#if false
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -31,3 +32,4 @@ namespace Coreddns.Core.Entities.DdnsDb
         public DateTimeOffset createtime { get; set; }
     }
 }
+#endif
