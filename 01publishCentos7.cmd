@@ -1,4 +1,4 @@
-set BUILD_BUILDNUMBER=1.0.0-local
+set BUILD_BUILDNUMBER=1.0.1-local
 
 SET bindir="%~dp0"
 CD Coreddns.Core
