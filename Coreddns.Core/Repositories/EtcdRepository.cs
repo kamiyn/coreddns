@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Coreddns.Core.Entities.DdnsDb;
 using Coreddns.Core.Model;
@@ -57,6 +58,10 @@ namespace Coreddns.Core.Repositories
         {
             string url = _options.Value.BaseEtcdUrl + row.name.ToLower();
             var client = new HttpClient();
+            if (_options.Value.BaseEtcdAuth != null)
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _options.Value.BaseEtcdAuth);
+            }
 
             // IPv4 登録しない
             // await SendNewaddrToEtcdSub(url + "/v4", row.ipv4, client);
