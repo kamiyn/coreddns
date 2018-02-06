@@ -26,8 +26,17 @@ namespace Coreddns.Core.Repositories
         {
             public string host { get; set; }
 
+            /// <summary>
+            /// 最終変更日時 変更があった場合のみ更新する
+            /// </summary>
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public long? updatedAt { get; set; }
+
+            /// <summary>
+            /// 最終アクセス日時 変更がなかった場合でも更新される
+            /// </summary>
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public long? lastAccess { get; set; }
         }
 
         public class EtcdNode
@@ -59,18 +68,20 @@ namespace Coreddns.Core.Repositories
             var now = GetUnixTime();
             var oldEntry = await GetOldEntry(urlWithSubkey, client);
 
-            if (ipaddr != null && oldEntry != null && oldEntry.host == ipaddr && oldEntry.updatedAt > now - 86400)
-            {
-                _logger.LogInformation("NOT UPDATE " + urlWithSubkey);
-                return; // 値の変更がなく、かつ1日以内のレコードであれば更新をしない
-            }
+            // #32262 最終クエリ発生日時,IPv6 アドレス更新日時 を記録
+            long? updatedAt = oldEntry == null
+                ? null
+                : oldEntry.host == ipaddr
+                    ? oldEntry.updatedAt
+                    : now;
 
             if (ipaddr != null)
             {
-                var contentStr = Newtonsoft.Json.JsonConvert.SerializeObject(new EtcdRequest
+                var contentStr = JsonConvert.SerializeObject(new EtcdRequest
                 {
                     host = ipaddr,
-                    updatedAt = now,
+                    updatedAt = updatedAt,
+                    lastAccess = now,
                 });
                 _logger.LogInformation("PUT " + urlWithSubkey + " value=" + contentStr);
                 var content = new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("value", contentStr) });
