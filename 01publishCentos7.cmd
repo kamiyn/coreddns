@@ -16,6 +16,6 @@ SET publishdir="Coreddns.Web\bin\release\netcoreapp2.0\centos.7-x64\publish"
 
 CD %bindir%
 CD %publishdir%
-%sevenzip% a C:\temp\Coreddns.Web-%BUILD_BUILDNUMBER%.zip *.*
+%sevenzip% a C:\temp\Coreddns.Web-%BUILD_BUILDNUMBER%.zip -r .
 
 CD %bindir%
