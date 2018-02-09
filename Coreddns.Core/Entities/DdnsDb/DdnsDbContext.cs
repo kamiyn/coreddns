@@ -14,7 +14,6 @@ namespace Coreddns.Core.Entities.DdnsDb
         { }
 
         public DbSet<ddnshost> ddnshost { get; set; }
-        // public DbSet<ddnschangelog> ddnschangelog { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,10 +23,6 @@ namespace Coreddns.Core.Entities.DdnsDb
             modelBuilder.Entity<ddnshost>()
                 .HasIndex(x => new { x.hash, x.isvalid })
                 .IsUnique();
-
-            // modelBuilder.Entity<ddnschangelog>()
-            //     .HasIndex(x => x.name);
-                // createtime の降順でもインデックスがあるとよいが 降順でのインデックス付与方法が分からなかった
         }
     }
 }
