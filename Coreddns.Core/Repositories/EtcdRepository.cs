@@ -88,18 +88,18 @@ namespace Coreddns.Core.Repositories
                     updatedAt = updatedAt,
                     lastAccess = now,
                 });
-                _logger.LogInformation("PUT " + urlWithSubkey + " value=" + contentStr);
+                _logger.LogDebug("PUT " + urlWithSubkey + " value=" + contentStr);
                 var content = new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("value", contentStr) });
                 var response = await client.PutAsync(urlWithSubkey, content);
                 var responseStr = await response.Content.ReadAsStringAsync();
-                _logger.LogInformation(responseStr);
+                _logger.LogDebug(responseStr);
             }
             else
             {
-                _logger.LogInformation("DELETE " + urlWithSubkey);
+                _logger.LogDebug("DELETE " + urlWithSubkey);
                 var response = await client.DeleteAsync(urlWithSubkey);
                 var responseStr = await response.Content.ReadAsStringAsync();
-                _logger.LogInformation(responseStr);
+                _logger.LogDebug(responseStr);
             }
         }
 

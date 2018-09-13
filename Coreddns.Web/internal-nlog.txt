@@ -1,0 +1,47 @@
+2018-09-13 14:28:15.0091 Info Message Template Auto Format enabled
+2018-09-13 14:28:15.0091 Info Loading assembly: NLog.Web.AspNetCore
+2018-09-13 14:28:15.0779 Info Adding target File Target[infofilelogger]
+2018-09-13 14:28:15.0779 Info Adding target File Target[debugfilelogger]
+2018-09-13 14:28:15.0870 Info Configured from an XML element in G:\work\coreddns\Coreddns.Web\bin\Debug\netcoreapp2.1\nlog.config...
+2018-09-13 14:28:15.1021 Info Found 49 configuration items
+2018-09-13 14:28:28.4131 Info Message Template Auto Format enabled
+2018-09-13 14:28:28.4131 Info Loading assembly: NLog.Web.AspNetCore
+2018-09-13 14:28:28.4824 Info Adding target File Target[infofilelogger]
+2018-09-13 14:28:28.4824 Info Adding target File Target[debugfilelogger]
+2018-09-13 14:28:28.4910 Info Configured from an XML element in G:\work\coreddns\Coreddns.Web\bin\Debug\netcoreapp2.1\nlog.config...
+2018-09-13 14:28:28.4910 Info Found 49 configuration items
+2018-09-13 14:36:58.5793 Info Message Template Auto Format enabled
+2018-09-13 14:36:58.5866 Info Loading assembly: NLog.Web.AspNetCore
+2018-09-13 14:36:58.6513 Info Adding target File Target[warnfilelogger]
+2018-09-13 14:36:58.6513 Info Adding target File Target[infofilelogger]
+2018-09-13 14:36:58.6513 Info Adding target File Target[debugfilelogger]
+2018-09-13 14:36:58.6513 Info Configured from an XML element in G:\work\coreddns\Coreddns.Web\bin\Debug\netcoreapp2.1\nlog.config...
+2018-09-13 14:36:58.6760 Info Found 73 configuration items
+2018-09-13 14:40:03.1035 Info Message Template Auto Format enabled
+2018-09-13 14:40:03.1035 Info Loading assembly: NLog.Web.AspNetCore
+2018-09-13 14:40:03.1732 Info Adding target File Target[warnfilelogger]
+2018-09-13 14:40:03.1732 Info Adding target File Target[infofilelogger]
+2018-09-13 14:40:03.1732 Info Adding target File Target[debugfilelogger]
+2018-09-13 14:40:03.1820 Info Configured from an XML element in G:\work\coreddns\Coreddns.Web\bin\Debug\netcoreapp2.1\nlog.config...
+2018-09-13 14:40:03.1969 Info Found 71 configuration items
+2018-09-13 14:40:20.8042 Info Message Template Auto Format enabled
+2018-09-13 14:40:20.8118 Info Loading assembly: NLog.Web.AspNetCore
+2018-09-13 14:40:20.8749 Info Adding target File Target[warnfilelogger]
+2018-09-13 14:40:20.8749 Info Adding target File Target[infofilelogger]
+2018-09-13 14:40:20.8749 Info Adding target File Target[debugfilelogger]
+2018-09-13 14:40:20.8841 Info Configured from an XML element in G:\work\coreddns\Coreddns.Web\bin\Debug\netcoreapp2.1\nlog.config...
+2018-09-13 14:40:20.8994 Info Found 79 configuration items
+2018-09-13 14:42:33.8748 Info Message Template Auto Format enabled
+2018-09-13 14:42:33.8748 Info Loading assembly: NLog.Web.AspNetCore
+2018-09-13 14:42:33.9453 Info Adding target File Target[warnfilelogger]
+2018-09-13 14:42:33.9469 Info Adding target File Target[infofilelogger]
+2018-09-13 14:42:33.9469 Info Adding target File Target[debugfilelogger]
+2018-09-13 14:42:33.9469 Info Configured from an XML element in G:\work\coreddns\Coreddns.Web\bin\Debug\netcoreapp2.1\nlog.config...
+2018-09-13 14:42:33.9690 Info Found 79 configuration items
+2018-09-13 14:44:25.7316 Info Message Template Auto Format enabled
+2018-09-13 14:44:25.7316 Info Loading assembly: NLog.Web.AspNetCore
+2018-09-13 14:44:25.8055 Info Adding target File Target[warnfilelogger]
+2018-09-13 14:44:25.8055 Info Adding target File Target[infofilelogger]
+2018-09-13 14:44:25.8055 Info Adding target File Target[debugfilelogger]
+2018-09-13 14:44:25.8055 Info Configured from an XML element in G:\work\coreddns\Coreddns.Web\bin\Debug\netcoreapp2.1\nlog.config...
+2018-09-13 14:44:25.8298 Info Found 79 configuration items

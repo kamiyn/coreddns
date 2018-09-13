@@ -6,6 +6,7 @@ using Coreddns.Core.Entities.DdnsDb;
 using Coreddns.Core.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Coreddns.Web.Controllers
 {
@@ -13,13 +14,17 @@ namespace Coreddns.Web.Controllers
     {
         private readonly DdnsDbContext _context;
         private readonly IEtcdRepostitory _etcdRepo;
+        private readonly ILogger _logger;
 
         public RenewController(
         DdnsDbContext context
-        , IEtcdRepostitory etcdRepo)
+        , IEtcdRepostitory etcdRepo
+        , ILogger<RenewController> logger
+        )
         {
             _context = context;
             _etcdRepo = etcdRepo;
+            _logger = logger;
         }
 
         private const string okStr = "OK";
@@ -48,18 +53,30 @@ namespace Coreddns.Web.Controllers
         [HttpGet("api/renew")]
         public async Task<string> DdnsRenew()
         {
-            string q = Request.QueryString.HasValue ? Request.QueryString.Value : "";
-            string hostkey = q.StartsWith("?")
-            ? q.Substring(1)
-            : q;
+            try
+            {
+                string q = Request.QueryString.HasValue ? Request.QueryString.Value : "";
+                string hostkey = q.StartsWith("?")
+                ? q.Substring(1)
+                : q;
 
-            var row = await _context.ddnshost.SingleOrDefaultAsync(x => x.hash == hostkey && x.isvalid);
-            if (row == null) return okStr;
+                var row = await _context.ddnshost.SingleOrDefaultAsync(x => x.hash == hostkey && x.isvalid);
+                if (row == null)
+                {
+                    _logger.LogWarning("Fail");
+                    return okStr;
+                }
 
-            var ip = GetRealIp();
-            await _etcdRepo.SendNewaddrToEtcd(new ddnshostParam(row.name, ip));
-            // await WriteLog(row.name, ip);
-            return okStr;
+                var ip = GetRealIp();
+                await _etcdRepo.SendNewaddrToEtcd(new ddnshostParam(row.name, ip));
+                _logger.LogWarning("Success");
+                return okStr;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "DdnsRenew Exception");
+                throw;
+            }
         }
 
         private IPAddress GetRealIp()
@@ -70,27 +87,6 @@ namespace Coreddns.Web.Controllers
                 return ip;
             }
             return Request.HttpContext.Connection.RemoteIpAddress;
-        }
-
-        // 値の変更があったら true を返す
-        private async Task<bool> WriteLog(string name, System.Net.IPAddress ip)
-        {
-#if false
-            var now = DateTimeOffset.Now;
-            string ipstr = ip.ToString();
-            {
-                _context.ddnschangelog.Add(new ddnschangelog
-                {
-                    name = name,
-                    ip = ipstr,
-                    addrfamily = (int)ip.AddressFamily,
-                    createtime = now,
-                });
-                await _context.SaveChangesAsync();
-            }
-#endif
-            await Task.Run(() => {});
-            return true;
         }
     }
 }

@@ -9,7 +9,7 @@
            "type": "coreclr",
            "request": "launch",
            "preLaunchTask": "build",
-           "program": "${workspaceFolder}/Coreddns.Web/bin/Debug/netcoreapp2.0/Coreddns.Web.dll",
+           "program": "${workspaceFolder}/Coreddns.Web/bin/Debug/netcoreapp2.1/Coreddns.Web.dll",
            "args": [],
            "cwd": "${workspaceFolder}/Coreddns.Web",
            "stopAtEntry": false,
